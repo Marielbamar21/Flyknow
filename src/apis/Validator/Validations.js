@@ -19,10 +19,10 @@ module.exports.Validations = {
         }
     
     },
-    checkQuestion: async(nameUnit) =>{ 
+    checkQuestion: async(idUnit) =>{ 
         try{
-            debug(nameUnit)
-            let question = await QuestionService.getForUnit(nameUnit);
+            debug(idUnit)
+            let question = await QuestionService.getForUnit(idUnit);
             debug(question)
             if(!question)
             {

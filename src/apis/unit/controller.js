@@ -19,7 +19,6 @@ module.exports.UnitController = {
         catch(error){
         debug(error);
         res.status(500).json({message: 'Internal server error'})
-
         }
     },
 
@@ -71,12 +70,12 @@ module.exports.UnitController = {
         }
         else
         {
-            debug(unit.name)
-            let quest = await Validations.checkQuestion(unit.name)
-            debug (quest.length)
-            if(quest.length == 0)
+            let quest = await Validations.checkQuestion(id)
+            debug(quest)
+            if(quest == null)
             {
-                let uniteDelete = await UnitService.deleteOne(id);
+            let uniteDelete = await UnitService.deleteOne(id);
+            debug(uniteDelete);
                 res.status(200).json({message : 'Operacion Exitosa',
                                 body : uniteDelete});
             }

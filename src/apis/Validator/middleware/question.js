@@ -8,7 +8,6 @@ module.exports.ValidationsQuestion = {
         try{
             await check('question').notEmpty().run(req);
             await check('unit').notEmpty().run(req);
-            await check('correct').notEmpty().run(req);
             await check('points').notEmpty().isInt().run(req);
             const errors = validationResult(req);
             if(!errors.isEmpty())

@@ -1,54 +1,78 @@
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose')
 const { Database } = require('../../database');
+const Unit = require('./model')
+const debug = require('debug')('app:UnitService');
+process.env.DEBUG = 'app:UnitService';
 
-const COLLECTION = 'unit';
-
-const Allget = async() => {
-
-    const collection = await Database(COLLECTION);
-    return await collection.find({status: true}).toArray();
-
+const  Allget = async() => {
+    try {
+        await Database()
+        const units = await Unit.find({status: true});
+        mongoose.connection.close();
+        return units;
+        } 
+    catch (error) {
+        debug('Error al obtener las unidades:', error);
+        }
 }
 
 
 const getOne = async(id) => {
+    try{
+        await Database();
+        const unit= await Unit.findOne({_id:id , status:true})
+        mongoose.connection.close();
+        return unit;
 
-    const collection = await Database(COLLECTION);
-    return await collection.findOne({_id: new ObjectId(id), status : true});
+
+    }
+    catch(error){
+        debug('Error al obtener la unidad', error)
+    }
 
 }
 
-
-const getOneForName = async(name) => {
-
-    const collection = await Database(COLLECTION)
-    return await collection.findOne({name: name, status : true})
-
-}
 
 const create = async(unit) => {
-    
-    const newUnit = { ...unit,finished: false, status: true };
-    const collection = await Database(COLLECTION);
-    let result = await collection.insertOne(newUnit);
-    return result.insertedId;
-
+    try {
+        await Database();
+        const newUnit = new Unit(unit);
+        debug(newUnit);
+        let createUnit = await newUnit.save();
+        mongoose.connection.close();
+        return createUnit;
+         
+    }
+    catch(error){
+    debug('Error al crear Unidad', error)
+    }
 }
 
 const deleteOne = async(id) => {
-    
-    const collection = await Database(COLLECTION);
-    return await collection.updateOne({_id: new ObjectId(id)},{ $set: { status: false } });
+    try {
+        await Database();
+        const deleteUnit = await Unit.findByIdAndUpdate(id,{status: false})
+        mongoose.connection.close();
+        return deleteUnit
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
 
 };
 
 
 const update = async(id, unit) => {
-    
-    const collection = await Database(COLLECTION);
-    await collection.updateOne({_id: new ObjectId(id)},unit);
-    let prod = await getOne(id);
-    return prod;
+    try {
+        await Database();
+        const updateUnit = await Unit.findByIdAndUpdate(id,unit)
+        mongoose.connection.close();
+        return updateUnit
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
+
 
 }
 
@@ -56,7 +80,6 @@ const update = async(id, unit) => {
 module.exports.UnitService = {
     Allget,
     getOne,
-    getOneForName,
     create,
     deleteOne,
     update

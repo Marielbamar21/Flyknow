@@ -51,7 +51,8 @@ module.exports.UserController = {
             let {body} =req
             let units = await UnitService.Allget();
             let questions = await QuestionService.Allget();
-            let id=await UserService.create(body,units,questions);
+            let id=await UserService.create({...body,units,questions});
+            debug(id)
             let user= await UserService.getOne(id);
             res.status(201).json({message: 'Operacion Exitosa',
                                 body: user});
@@ -91,12 +92,13 @@ module.exports.UserController = {
         let {body} = req;
         let {query : {id}} = req;
         let user = await UserService.getOne(id);
+        debug(user)
         
         if(!user){
             res.json({message:'El usuario no exite no se puede actualizar'})
         }
         else{
-        let userUp = await UserService.update(id,{ $set:body });
+        let userUp = await UserService.update(id,body);
         res.status(200).json({message : 'Operacion Exitosa',
                                 body : userUp});
         }

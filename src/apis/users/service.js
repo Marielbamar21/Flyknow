@@ -1,42 +1,76 @@
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose')
 const { Database } = require('../../database');
+const { request } = require('express');
+const User = require('./model');
 const debug = require('debug')('app:UserService')
 process.env.DEBUG = 'app:UserService';
 
 const COLLECTION = 'user';
 
-const Allget = async() => {
-    const collection = await Database(COLLECTION);
-    return await collection.find({status: true}).toArray();
+const Allget = async() => { 
+    try {
+        await Database()
+        const users = await User.find({status: true});
+        mongoose.connection.close();
+        return users;
+        } 
+    catch (error) {
+        debug('Error al obtener las unidades:', error);
+        }
 }
 
 const getOne = async(id) => {
-    const collection = await Database(COLLECTION)
-    return await collection.findOne({_id: new ObjectId(id), status : true})
+    try{
+        await Database();
+        const user= await User.findOne({_id:id , status:true})
+        mongoose.connection.close();
+        return user;
+
+
+    }
+    catch(error){
+        debug('Error al obtener la unidad', error)
+    }
 }
 
-const create = async(user,units,questions) => {
+const create = async(user) => {
     
-    const newUser = { ...user,acumpoints: 0, units: units,questions:questions, status: true }
-    const collection = await Database(COLLECTION);
-    let result = await collection.insertOne(newUser);
-    return result.insertedId;
-
+    try {
+        await Database();
+        const newUser = new User(user);
+        debug(newUser);
+        let createUser = await newUser.save();
+        mongoose.connection.close();
+        return createUser;
+    }
+    catch(error){
+        debug('Error al crear Unidad', error)
+    }
 }
 
 const deleteOne = async(id) => {
     
-    const collection = await Database(COLLECTION);
-    await collection.updateOne({_id: new ObjectId(id)},{ $set: { status: false } });
-    let user= await getOne(id);
-    return  user;
+    try {
+        await Database();
+        const deleteUser = await User.findByIdAndUpdate(id,{status: false})
+        mongoose.connection.close();
+        return deleteUser
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
 };
 const update = async(id, user) => {
     
-    const collection = await Database(COLLECTION);
-    await collection.updateOne({_id: new ObjectId(id)},user);
-    let prod = await getOne(id);
-    return prod;
+    try {
+        await Database();
+        const updateUser = await User.findByIdAndUpdate(id,user)
+        mongoose.connection.close();
+        return updateUser
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
 
 }
 

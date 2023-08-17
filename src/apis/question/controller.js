@@ -1,7 +1,6 @@
 const {QuestionService} = require('./service');
-const debug = require('debug')('app:QuestionController');
 const {Validations} = require('../Validator/Validations');
-
+const debug = require('debug')('app:QuestionController');
 process.env.DEBUG = 'app:QuestionController';
 
 
@@ -25,8 +24,9 @@ module.exports.QuestionController = {
     getQuestion: async(req,res) => {   
         try{
         let {query : {id}} = req
-        debug
+        
         let question = await QuestionService.getOne(id);
+        debug(question)
         if(!question)
         {
             res.json({message: 'El usuario no existe'})
@@ -52,7 +52,8 @@ module.exports.QuestionController = {
             }
             else
             {
-                await QuestionService.create(body);
+                let a = await QuestionService.create(body);
+                debug(a)
                 res.status(201).json({message: 'Operacion Exitosa',
                                         body: body});
             }
@@ -75,9 +76,9 @@ module.exports.QuestionController = {
         }
         else
         {
-            let answers = await Validations.checkAnswers(id);
+            let answers = question.answers
             debug(answers)
-            if(!answers)
+            if(answers.length == 0)
             {
                 let questiono = await QuestionService.deleteOne(id);
                 res.status(200).json({message : 'Operacion Exitosa',

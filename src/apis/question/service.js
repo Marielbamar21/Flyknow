@@ -1,45 +1,85 @@
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose')
 const { Database } = require('../../database');
-const debug = require('debug')('app:QuestionService')
+const Question = require('./model');
+const debug = require('debug')('app:QuestionService');
 process.env.DEBUG = 'app:QuestionService';
 
-const COLLECTION = 'question';
-
 const Allget = async() => {
-    const collection = await Database(COLLECTION);
-    return await collection.find({status: true}).toArray();
+    try {
+        await Database()
+        const question = await Question.find({status: true});
+        mongoose.connection.close();
+        return question;
+        } 
+    catch (error) {
+        debug('Error al obtener las unidades:', error);
+        }
 }
 
 const getOne = async(id) => {
-    const collection = await Database(COLLECTION)
-    return await collection.findOne({_id: new ObjectId(id), status : true})
+    try{
+        await Database();
+        const question= await Question.findOne({_id:id , status:true})
+        mongoose.connection.close();
+        return question;
+
+    }
+    catch(error){
+        debug('Error al obtener la unidad', error)
+    }
 }
-const getForUnit= async(nameUnit) =>{
-    const collection = await Database(COLLECTION)
-    return await collection.find({unit:nameUnit, status: true}).toArray();
+const getForUnit= async(idUnit) =>{
+    try{
+    await Database();
+    let question = await Question.findOne({unit : idUnit})
+    mongoose.connection.close();
+    return question
+    }
+    catch(error){
+        debug(' no se pudo encontrar la pregunta')
+    }
 
 }
 
 const create = async(question) => {
-    
-    const newQuestion = { ...question,anwers: [], status: true }
-    const collection = await Database(COLLECTION);
-    let result = await collection.insertOne(newQuestion);
-    return result.insertedId;
+    try{
+    await Database();
+    const newQuestion = new Question(question);
+    let createQuestion = await newQuestion.save();
+    mongoose.connection.close();
+    return createQuestion;    
+    }
+    catch(error){
+        debug('Error al crear Unidad', error)
+    }
 
 }
 
 const deleteOne = async(id) => {
-    let ident= id.trim();
-    const collection = await Database(COLLECTION);
-    return await collection.updateOne({_id: new ObjectId(ident)},{ $set: { status: false } });
+    try {
+        debug(id)
+        await Database();
+        const deleteQuestion = await Question.findByIdAndUpdate(id,{status: false})
+        debug(deleteQuestion)
+        mongoose.connection.close();
+        return deleteQuestion
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
 };
 
 const update = async(id, question) => {
     
-    const collection = await Database(COLLECTION);
-    await collection.updateOne({_id: new ObjectId(id)},question);
-    return await getOne(id);
+    try {
+        await Database();
+        const updateQuestion = await Question.findByIdAndUpdate(id,question)
+        mongoose.connection.close();
+        return updateQuestion
+    }
+    catch(error){
+        debug('error al eliminar unidad', error)
+    }
 
 }
 
