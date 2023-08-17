@@ -1,5 +1,4 @@
 require('dotenv').config();
-const debug = require('debug')('app: main')
 
 module.exports.config = {
     port: process.env.PORT,
